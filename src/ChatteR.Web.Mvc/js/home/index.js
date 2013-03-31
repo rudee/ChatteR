@@ -10,7 +10,6 @@
   // Set up the client's receiveMessage function
   chatter.client.receiveMessage = function (message, signature) {
     setDirtyTitle();
-    //var $messageContent = $("<div class=\"message\"><div><div class=\"content\">" + formatMessage(message) + "</div><p class=\"signature\">" + signature + "</p></div></div>");
     var $messageContent = $("<div class=\"message\"><div><div class=\"content\">" + message + "</div><p class=\"signature\">" + signature + "</p></div></div>");
     $("#messages").append($messageContent);
     $("html,body").animate({ scrollTop: $messageContent.offset().top }, 500, function () {
