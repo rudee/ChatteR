@@ -1,2 +1,2 @@
-nuget.exe install "ChatteR.Web.Mvc\packages.config" -SolutionDirectory "."
+nuget.exe install "%~dp0ChatteR.Web.Mvc\packages.config" -SolutionDirectory %~dp0
 @PAUSE
