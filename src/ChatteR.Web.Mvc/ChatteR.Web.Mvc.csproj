@@ -134,6 +134,7 @@
     <Content Include="css\home\index.css" />
     <Content Include="Global.asax" />
     <None Include="js\jquery-1.9.1.intellisense.js" />
+    <Content Include="js\chatterhub.js" />
     <Content Include="js\home\index.js" />
     <Content Include="js\jquery-1.9.1.js" />
     <Content Include="js\jquery-1.9.1.min.js" />
