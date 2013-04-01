@@ -1,7 +1,7 @@
 ﻿/*
  * Requires:
  *  jquery-1.9.1.js
- *  chatterhub.js
+ *  chatter.js
  */
 $(function () {
   var $chatroom = $("input[name=chatroom]");
