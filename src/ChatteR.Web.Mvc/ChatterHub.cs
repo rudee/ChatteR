@@ -14,29 +14,24 @@ namespace ChatteR.Web.Mvc
     [HubName("chatter")]
     public class ChatterHub : Hub
     {
+        public static void UpdateStats()
+        {
+            var data = new
+            {
+                numOfClients   = s_chatter.ConnectionIds.Count,
+                numOfChatrooms = s_chatter.Chatrooms.Count,
+                date           = DateTime.UtcNow
+            };
+
+            IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();
+            string      json    = JsonConvert.SerializeObject(data);
+
+            context.Clients.All.UpdateStats(json);
+        }
+
         static ChatterHub()
         {
             s_chatter = new Chatter();
-        }
-
-        public void SendMessage(string message, string signature)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
-
-            message = FormatMessage(message);
-
-            s_chatter.GetChatrooms(Context.ConnectionId).ToList().ForEach(
-                chatroom => Clients.Group(chatroom).ReceiveMessage(message, string.IsNullOrWhiteSpace(signature) ? "Anonymous" : signature.Trim()));
-        }
-
-        public void JoinChatroom(string chatroom)
-        {
-            chatroom = chatroom.Trim();
-            Groups.Add(Context.ConnectionId, chatroom);
-            s_chatter.Add(Context.ConnectionId, chatroom);
         }
 
         public override Task OnDisconnected()
@@ -50,16 +45,25 @@ namespace ChatteR.Web.Mvc
             return base.OnDisconnected();
         }
 
-        public static void UpdateStats()
+        public void SendMessage(string message, string signature)
         {
-            dynamic data = new ExpandoObject();
-            data.numOfClients = s_chatter.ConnectionIds.Count;
-            data.numOfChatrooms = s_chatter.Chatrooms.Count;
-            data.date = DateTime.UtcNow;
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
 
-            var context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();
-            string json = JsonConvert.SerializeObject(data);
-            context.Clients.All.UpdateStats(json);
+            message = FormatMessage(message);
+            signature = FormatSignature(signature);
+
+            s_chatter.GetChatrooms(Context.ConnectionId).ToList().ForEach(
+                chatroom => Clients.Group(chatroom).ReceiveMessage(message, signature));
+        }
+
+        public void JoinChatroom(string chatroom)
+        {
+            chatroom = chatroom.Trim();
+            Groups.Add(Context.ConnectionId, chatroom);
+            s_chatter.Add(Context.ConnectionId, chatroom);
         }
 
         private static string FormatMessage(string message)
@@ -85,6 +89,7 @@ namespace ChatteR.Web.Mvc
                 {
                     message = message.Replace(match.Value, string.Format(" <a href=\"{0}\" target=\"_blank\">{0}</a>", match.Value));
                 }
+
                 // Wrap each line inside a <P> element
                 string[] lines = message.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
                 if (lines.Length > 1)
@@ -96,6 +101,16 @@ namespace ChatteR.Web.Mvc
                     return "<p>" + lines[0] + "</p>";
                 }
             }
+        }
+
+        private static string FormatSignature(string signature)
+        {
+            if (string.IsNullOrWhiteSpace(signature))
+            {
+                return "Anonymous";
+            }
+
+            return WebUtility.HtmlEncode(signature.Trim());
         }
 
         private static readonly Chatter s_chatter;
