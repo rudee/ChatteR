@@ -68,7 +68,7 @@ $(function () {
     }
   }
 
-  chatter.receiveMessage(function (message, signature) {
+  chatter.client.receiveMessage(function (message, signature) {
     setDirtyTitle();
     var $messageContent = $("<div class=\"message\"><div><div class=\"content\">" + message + "</div><p class=\"signature\">" + signature + "</p></div></div>");
     $("#messages").append($messageContent);
@@ -77,19 +77,19 @@ $(function () {
     });
   });
 
-  chatter.updateStats(function (stats) {
+  chatter.client.updateStats(function (stats) {
     $("#stats").html("<p>About " + stats.numOfClients + " user(s) in " + stats.numOfChatrooms + " chatroom(s) at " + formatDate(new Date(stats.date)) + "</p>");
   });
 
-  chatter.connected(function (data) {
+  chatter.client.connected(function (data) {
     console.log("Connected");
     // Join the chatroom
-    chatter.joinChatroom($chatroom.val());
+    chatter.server.joinChatroom($chatroom.val());
     // Call the server's sendMessage function on submit
     $("#form").submit(function () {
       var signature = $signature.val();
       if (/\S/.test($message.val())) {
-        chatter.sendMessage($message.val(), signature);
+        chatter.server.sendMessage($message.val(), signature);
         $message.val("");
       } else {
         $message.focus();
@@ -103,7 +103,7 @@ $(function () {
     $send.prop("disabled", false);
   });
 
-  chatter.reconnecting(function (data) {
+  chatter.client.reconnecting(function (data) {
     console.log("Re-connecting...");
     // Disable form
     $message.prop("disabled", true).prop("placeholder", "Re-connecting to server. Please wait...");

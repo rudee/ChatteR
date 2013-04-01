@@ -3,6 +3,9 @@
  *  jquery.signalR-1.0.1.js
  */
 (function (chatter, $, undefined) {
+  chatter.client = {};
+  chatter.server = {};
+
   var chatterHub = $.connection.chatter;
   var connectingCallback;
   var connectedCallback;
@@ -10,42 +13,50 @@
   var disconnectedCallback;
   var errorCallback;
 
-  // Core event callbacks
-  chatter.joinChatroom = function (chatroom) {
-    chatterHub.server.joinChatroom(chatroom);
-  };
-  chatter.sendMessage = function (message, signature) {
-    chatterHub.server.sendMessage(message, signature);
-  };
-  chatter.receiveMessage = function (callback) {
+  // Client-side callbacks
+  // function receiveMessage(message, signature)
+  chatter.client.receiveMessage = function (callback) {
     chatterHub.client.receiveMessage = callback;
   };
-  chatter.updateStats = function (callback) {
+  // function updateStats(stats)
+  chatter.client.updateStats = function (callback) {
     chatterHub.client.updateStats = callback;
   };
-
-  // stateChanged event callbacks
-  chatter.connecting = function (callback) {
+  // function connecting(data)
+  chatter.client.connecting = function (callback) {
     connectingCallback = callback;
   };
-  chatter.connected = function (callback) {
+  // function connected(data)
+  chatter.client.connected = function (callback) {
     connectedCallback = callback;
   };
-  chatter.reconnecting = function (callback) {
+  // function reconnecting(data)
+  chatter.client.reconnecting = function (callback) {
     reconnectingCallback = callback;
   };
-  chatter.disconnected = function (callback) {
+  // function disconnected(data)
+  chatter.client.disconnected = function (callback) {
     disconnectedCallback = callback;
   };
 
-  // error event callback
+  // Server-side calls
+  // function joinChatroom(chatroom)
+  chatter.server.joinChatroom = function (chatroom) {
+    chatterHub.server.joinChatroom(chatroom);
+  };
+  // function sendMessage(message, signature)
+  chatter.server.sendMessage = function (message, signature) {
+    chatterHub.server.sendMessage(message, signature);
+  };
+
+  // Error event callback
   chatter.error = function (callback) {
     errorCallback = callback;
   };
 
   // Start the connection
   $.connection.hub.start();
-  // Log
+  // Execute error callback on error event
   $.connection.hub.error(function (data) {
     if (errorCallback) {
       errorCallback(data);
