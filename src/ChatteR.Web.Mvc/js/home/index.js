@@ -11,24 +11,6 @@ $(function () {
   var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-  function formatMessage(message) {
-    var lines = message.split('\n');
-    var linesWithContent = [];
-    var trimmedLine;
-    var i = 0;
-    while (i < lines.length) {
-      if (lines[i].indexOf(" ") === 0) {
-        return "<pre>" + message + "</pre>";
-      }
-      trimmedLine = $.trim(lines[i]);
-      if (trimmedLine !== "") {
-        linesWithContent.push(trimmedLine);
-      }
-      i++;
-    }
-    return "<p>" + linesWithContent.join("</p><p>") + "</p>";
-  }
-
   function formatDate(date) {
     var ampm = "AM";
     var hours = date.getHours();
