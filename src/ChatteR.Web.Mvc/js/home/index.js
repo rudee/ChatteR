@@ -60,6 +60,7 @@ $(function () {
   });
 
   chatter.client.updateStats(function (stats) {
+    stats = JSON.parse(stats);
     $("#stats").html("<p>About " + stats.numOfClients + " user(s) in " + stats.numOfChatrooms + " chatroom(s) at " + formatDate(new Date(stats.date)) + "</p>");
   });
 

@@ -56,10 +56,10 @@ namespace ChatteR.Web.Mvc
             data.numOfClients = s_chatter.ConnectionIds.Count;
             data.numOfChatrooms = s_chatter.Chatrooms.Count;
             data.date = DateTime.UtcNow;
-            string json = JsonConvert.SerializeObject(data);
 
             var context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();
-            context.Clients.All.UpdateStats(data);
+            string json = JsonConvert.SerializeObject(data);
+            context.Clients.All.UpdateStats(json);
         }
 
         private static string FormatMessage(string message)
