@@ -20,7 +20,7 @@ namespace ChatteR.Web.Mvc
             {
                 numOfClients   = s_chatter.ConnectionIds.Count,
                 numOfChatrooms = s_chatter.Chatrooms.Count,
-                date           = DateTime.UtcNow
+                date           = DateTime.UtcNow.ToString("r")
             };
 
             IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();
