@@ -4,6 +4,7 @@
  *  chatter.js
  */
 $(function () {
+  var $htmlbody = $("html,body");
   var $title = $("title");
   var $chatter = $("#chatter");
   var $messages = $("#messages");
@@ -11,6 +12,7 @@ $(function () {
   var $chatroom = $("input[name=chatroom]");
   var $message = $("textarea[name=message]");
   var $signature = $("input[name=signature]");
+  var $messageAndSignature = $("textarea[name=message], input[name=signature]");
   var $send = $("input[name=send]");
   var $stats = $("#stats");
   var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -38,31 +40,36 @@ $(function () {
     return weekday[date.getDay()] + ", " + date.getDate() + " " + month[date.getMonth()] + " " + date.getFullYear() + " " + hours + ":" + minutes + ":" + seconds + " " + ampm;
   }
 
-  function setDirtyTitle() {
+  function updateTitle() {
     var title = $title.html();
-    if (title.indexOf("*") === -1) {
-      title = "*" + title;
-      try {
-        $title.html(title);
-      } catch (e) {}
+    var regex = /^\(\d+\) /;
+    if (unreadMsgCount === 0) {
+      title = title.replace(regex, "");
+    } else if (regex.test(title)) {
+      title = title.replace(regex, "(" + unreadMsgCount + ") ");
+    } else {
+      title = "(" + unreadMsgCount + ") " + title;
     }
+    try {
+      $title.html(title);
+    } catch (e) { }
   }
 
-  function clearDirtyTitle() {
-    var title = $title.html();
-    if (title.indexOf("*") !== -1) {
-      title = title.substring(1, title.length);
-      try {
-        $title.html(title);
-      } catch (e) {}
-    }
+  function incrementUnreadMsgCount() {
+    unreadMsgCount++;
+    updateTitle();
+  }
+
+  function resetUnreadMsgCount() {
+    unreadMsgCount = 0;
+    updateTitle();
   }
 
   chatter.client.receiveMessage(function (message, signature) {
-    setDirtyTitle();
+    incrementUnreadMsgCount();
     var $messageContent = $("<div class=\"message\"><div><div class=\"content\">" + message + "</div><p class=\"signature\">" + signature + "</p></div></div>");
     $messages.append($messageContent);
-    $("html,body").animate({ scrollTop: $messageContent.offset().top }, 500, function () {
+    $htmlbody.animate({ scrollTop: $messageContent.offset().top }, 500, function () {
       $message.focus();
     });
   });
@@ -96,19 +103,24 @@ $(function () {
 
   chatter.client.reconnecting(function (data) {
     console.log("Re-connecting...");
-    // Disable form
+    // Disable form while reconnecting
     $message.prop("disabled", true).prop("placeholder", "Re-connecting to server. Please wait...");
     $signature.prop("disabled", true);
     $send.prop("disabled", true);
   });
 
   // Submit when CTRL-ENTER is pressed while inside the message textarea
-  $message.keypress(function (e) {
-    clearDirtyTitle();
+  $messageAndSignature.keypress(function (e) {
+    resetUnreadMsgCount();
     if (e.ctrlKey === true && (e.keyCode === 10 || e.keyCode === 13)) {
       $form.submit();
     }
-  }).click(function () {
-    clearDirtyTitle();
+  });
+
+  // Reset unread message count on user action
+  $(window).click(function (e) {
+    resetUnreadMsgCount();
+  }).keydown(function (e) {
+    resetUnreadMsgCount();
   });
 });
