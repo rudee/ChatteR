@@ -37,7 +37,9 @@ $(function () {
     var title = $title.html();
     if (title.indexOf("*") === -1) {
       title = "*" + title;
-      $title.html(title);
+      try {
+        $title.html(title);
+      } catch (e) {}
     }
   }
 
@@ -46,7 +48,9 @@ $(function () {
     var title = $title.html();
     if (title.indexOf("*") !== -1) {
       title = title.substring(1, title.length);
-      $title.html(title);
+      try {
+        $title.html(title);
+      } catch (e) {}
     }
   }
 
