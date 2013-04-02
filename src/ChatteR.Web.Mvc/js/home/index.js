@@ -4,12 +4,18 @@
  *  chatter.js
  */
 $(function () {
+  var $title = $("title");
+  var $chatter = $("#chatter");
+  var $messages = $("#messages");
+  var $form = $("#form");
   var $chatroom = $("input[name=chatroom]");
   var $message = $("textarea[name=message]");
   var $signature = $("input[name=signature]");
   var $send = $("input[name=send]");
+  var $stats = $("#stats");
   var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var unreadMsgCount = 0;
 
   function formatDate(date) {
     var ampm = "AM";
@@ -33,7 +39,6 @@ $(function () {
   }
 
   function setDirtyTitle() {
-    var $title = $("title");
     var title = $title.html();
     if (title.indexOf("*") === -1) {
       title = "*" + title;
@@ -44,7 +49,6 @@ $(function () {
   }
 
   function clearDirtyTitle() {
-    var $title = $("title");
     var title = $title.html();
     if (title.indexOf("*") !== -1) {
       title = title.substring(1, title.length);
@@ -57,7 +61,7 @@ $(function () {
   chatter.client.receiveMessage(function (message, signature) {
     setDirtyTitle();
     var $messageContent = $("<div class=\"message\"><div><div class=\"content\">" + message + "</div><p class=\"signature\">" + signature + "</p></div></div>");
-    $("#messages").append($messageContent);
+    $messages.append($messageContent);
     $("html,body").animate({ scrollTop: $messageContent.offset().top }, 500, function () {
       $message.focus();
     });
@@ -65,7 +69,7 @@ $(function () {
 
   chatter.client.updateStats(function (stats) {
     stats = $.parseJSON(stats);
-    $("#stats").html("<p>About " + stats.numOfClients + " user(s) in " + stats.numOfChatrooms + " chatroom(s) at " + formatDate(new Date(stats.date)) + "</p>");
+    $stats.html("<p>About " + stats.numOfClients + " user(s) in " + stats.numOfChatrooms + " chatroom(s) at " + formatDate(new Date(stats.date)) + "</p>");
   });
 
   chatter.client.connected(function (data) {
@@ -73,7 +77,7 @@ $(function () {
     // Join the chatroom
     chatter.server.joinChatroom($chatroom.val());
     // Call the server's sendMessage function on submit
-    $("#form").submit(function () {
+    $form.submit(function () {
       var signature = $signature.val();
       if (/\S/.test($message.val())) {
         chatter.server.sendMessage($message.val(), signature);
@@ -84,7 +88,7 @@ $(function () {
       return false;
     });
     // Display/Enable form
-    $("#chatter").show();
+    $chatter.show();
     $message.prop("disabled", false).prop("placeholder", "Message (CTRL-ENTER to send)").focus();
     $signature.prop("disabled", false);
     $send.prop("disabled", false);
@@ -99,10 +103,10 @@ $(function () {
   });
 
   // Submit when CTRL-ENTER is pressed while inside the message textarea
-  $("textarea[name=message]").keypress(function (e) {
+  $message.keypress(function (e) {
     clearDirtyTitle();
     if (e.ctrlKey === true && (e.keyCode === 10 || e.keyCode === 13)) {
-      $("#form").submit();
+      $form.submit();
     }
   }).click(function () {
     clearDirtyTitle();
