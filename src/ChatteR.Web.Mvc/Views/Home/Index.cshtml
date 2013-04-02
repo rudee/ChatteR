@@ -20,8 +20,7 @@
     </form>
     <div id="stats"></div>
   </div>
-  <script src="~/js/jquery-1.9.1.min.js"></script>
-  <script src="~/js/jquery.signalR-1.0.1.min.js"></script>
+  @Scripts.Render("~/js/jquery", "~/js/jquery.signalR")
   <script src="~/signalr/hubs"></script>
   @Scripts.Render("~/js/chatter")
 </body>
