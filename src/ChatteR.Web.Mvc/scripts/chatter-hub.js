@@ -2,11 +2,11 @@
  * Requires:
  *  jquery.signalR-1.0.1.js
  */
-(function (chatter, $, undefined) {
-  chatter.client = {};
-  chatter.server = {};
+(function (chatterHub, $, undefined) {
+  chatterHub.client = {};
+  chatterHub.server = {};
 
-  var chatterHub = $.connection.chatter;
+  var _chatterHub = $.connection.chatter;
   var connectingCallback;
   var connectedCallback;
   var reconnectingCallback;
@@ -15,42 +15,42 @@
 
   // Client-side callbacks
   // function receiveMessage(message, signature)
-  chatter.client.receiveMessage = function (callback) {
-    chatterHub.client.receiveMessage = callback;
+  chatterHub.client.receiveMessage = function (callback) {
+    _chatterHub.client.receiveMessage = callback;
   };
   // function updateStats(stats)
-  chatter.client.updateStats = function (callback) {
-    chatterHub.client.updateStats = callback;
+  chatterHub.client.updateStats = function (callback) {
+    _chatterHub.client.updateStats = callback;
   };
   // function connecting(data)
-  chatter.client.connecting = function (callback) {
+  chatterHub.client.connecting = function (callback) {
     connectingCallback = callback;
   };
   // function connected(data)
-  chatter.client.connected = function (callback) {
+  chatterHub.client.connected = function (callback) {
     connectedCallback = callback;
   };
   // function reconnecting(data)
-  chatter.client.reconnecting = function (callback) {
+  chatterHub.client.reconnecting = function (callback) {
     reconnectingCallback = callback;
   };
   // function disconnected(data)
-  chatter.client.disconnected = function (callback) {
+  chatterHub.client.disconnected = function (callback) {
     disconnectedCallback = callback;
   };
 
   // Server-side calls
   // function joinChatroom(chatroom)
-  chatter.server.joinChatroom = function (chatroom) {
-    chatterHub.server.joinChatroom(chatroom);
+  chatterHub.server.joinChatroom = function (chatroom) {
+    _chatterHub.server.joinChatroom(chatroom);
   };
   // function sendMessage(message, signature)
-  chatter.server.sendMessage = function (message, signature) {
-    chatterHub.server.sendMessage(message, signature);
+  chatterHub.server.sendMessage = function (message, signature) {
+    _chatterHub.server.sendMessage(message, signature);
   };
 
   // Error event callback
-  chatter.error = function (callback) {
+  chatterHub.error = function (callback) {
     errorCallback = callback;
   };
 
@@ -74,4 +74,4 @@
       disconnectedCallback(data);
     }
   });
-}(window.chatter = window.chatter || {}, jQuery));
+}(window.chatterHub = window.chatterHub || {}, jQuery));

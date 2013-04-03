@@ -11,21 +11,21 @@ namespace ChatteR.Web.Mvc
             
             bundles.UseCdn = true;
 
-            bundles.Add(new StyleBundle("~/css/home/index")
-                   .Include("~/css/home/index.css"));
+            bundles.Add(new StyleBundle("~/content/chatter")
+                   .Include("~/content/chatter.css"));
 
-            bundles.Add(new ScriptBundle("~/js/jquery",
+            bundles.Add(new ScriptBundle("~/scripts/jquery",
                                          WebConfigurationManager.AppSettings["JqueryCdnUrl"])
-                   .Include("~/js/jquery-{version}.js"));
+                   .Include("~/scripts/jquery-{version}.js"));
 
-            bundles.Add(new ScriptBundle("~/js/jquery.signalR",
+            bundles.Add(new ScriptBundle("~/scripts/jquery.signalR",
                                          WebConfigurationManager.AppSettings["JquerySignalRCdnUrl"])
-                   .Include("~/js/jquery.signalR-{version}.js"));
+                   .Include("~/scripts/jquery.signalR-{version}.js"));
 
-            bundles.Add(new ScriptBundle("~/js/chatter")
-                   .Include("~/js/console-fix.js", 
-                            "~/js/chatter.js",
-                            "~/js/home/index.js"));
+            bundles.Add(new ScriptBundle("~/scripts/chatter")
+                   .Include("~/scripts/console-fix.js",
+                            "~/scripts/chatter-hub.js",
+                            "~/scripts/chatter.js"));
         }
     }
 }

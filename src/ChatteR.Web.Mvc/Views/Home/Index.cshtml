@@ -6,7 +6,7 @@
 <head>
   <meta name="viewport" content="width=device-width"/>
   <title>@Html.Raw(titlePrefix)ChatteR</title>
-  @Styles.Render("~/css/home/index")
+  @Styles.Render("~/content/chatter")
 </head>
 <body>
   <noscript>Please enable JavaScript</noscript>
@@ -20,8 +20,8 @@
     </form>
     <div id="stats"></div>
   </div>
-  @Scripts.Render("~/js/jquery", "~/js/jquery.signalR")
+  @Scripts.Render("~/scripts/jquery", "~/scripts/jquery.signalR")
   <script src="~/signalr/hubs"></script>
-  @Scripts.Render("~/js/chatter")
+  @Scripts.Render("~/scripts/chatter")
 </body>
 </html>
