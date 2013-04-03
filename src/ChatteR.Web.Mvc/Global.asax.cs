@@ -16,7 +16,7 @@ namespace ChatteR.Web.Mvc
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            timer = new Timer(ChatterHubUpdateStats, null, 1000, int.Parse(WebConfigurationManager.AppSettings["ChatterHubUpdateStatsIntervalInMilliseconds"]));
+            _timer = new Timer(ChatterHubUpdateStats, null, 1000, int.Parse(WebConfigurationManager.AppSettings["ChatterHubUpdateStatsIntervalInMilliseconds"]));
         }
 
         public void ChatterHubUpdateStats(object state)
@@ -24,6 +24,6 @@ namespace ChatteR.Web.Mvc
             ChatterHub.UpdateStats();
         }
 
-        private Timer timer;
+        private Timer _timer;
     }
 }
