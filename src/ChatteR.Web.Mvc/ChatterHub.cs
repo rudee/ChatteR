@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
@@ -16,17 +17,24 @@ namespace ChatteR.Web.Mvc
     {
         public static void UpdateStats()
         {
-            var data = new
+            if (!s_isStatsDirty)
             {
-                numOfClients   = s_chatter.ConnectionIds.Count,
-                numOfChatrooms = s_chatter.Chatrooms.Count,
-                date           = DateTime.UtcNow.ToString("r")
-            };
+                return;
+            }
+
+            var data = new
+                           {
+                               numOfClients   = s_chatter.ConnectionIds.Count,
+                               numOfChatrooms = s_chatter.Chatrooms.Count,
+                               date           = DateTime.UtcNow.ToString("r")
+                           };
 
             IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();
             string      json    = JsonConvert.SerializeObject(data);
 
             context.Clients.All.UpdateStats(json);
+
+            s_isStatsDirty = false;
         }
 
         static ChatterHub()
@@ -41,6 +49,8 @@ namespace ChatteR.Web.Mvc
             {
                 Groups.Remove(Context.ConnectionId, chatroom);
             }
+
+            s_isStatsDirty = true;
 
             return base.OnDisconnected();
         }
@@ -64,6 +74,7 @@ namespace ChatteR.Web.Mvc
             chatroom = chatroom.Trim();
             Groups.Add(Context.ConnectionId, chatroom);
             s_chatter.Add(Context.ConnectionId, chatroom);
+            s_isStatsDirty = true;
         }
 
         private static string FormatMessage(string message)
@@ -114,5 +125,6 @@ namespace ChatteR.Web.Mvc
         }
 
         private static readonly Chatter s_chatter;
+        private static bool s_isStatsDirty;
     }
 }
