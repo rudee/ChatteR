@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Configuration;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json;
@@ -15,7 +15,23 @@ namespace ChatteR.Web.Mvc
     [HubName("chatter")]
     public class ChatterHub : Hub
     {
-        public static void UpdateStats()
+        static ChatterHub()
+        {
+            s_chatter = new Chatter();
+        }
+
+        public ChatterHub()
+        {
+            if (s_timer == null)
+            {
+                s_timer = new Timer(UpdateStats,
+                                    null,
+                                    1000,
+                                    int.Parse(WebConfigurationManager.AppSettings["ChatterHubUpdateStatsIntervalInMilliseconds"]));
+            }
+        }
+
+        public void UpdateStats(object state)
         {
             if (!s_isStatsDirty)
             {
@@ -35,11 +51,6 @@ namespace ChatteR.Web.Mvc
             context.Clients.All.UpdateStats(json);
 
             s_isStatsDirty = false;
-        }
-
-        static ChatterHub()
-        {
-            s_chatter = new Chatter();
         }
 
         public override Task OnDisconnected()
@@ -125,6 +136,7 @@ namespace ChatteR.Web.Mvc
         }
 
         private static readonly Chatter s_chatter;
+        private static Timer s_timer;
         private static bool s_isStatsDirty;
     }
 }
