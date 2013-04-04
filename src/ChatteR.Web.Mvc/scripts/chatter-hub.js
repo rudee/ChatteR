@@ -14,7 +14,7 @@
   var errorCallback;
 
   // Client-side callbacks
-  // function receiveMessage(message, signature)
+  // function receiveMessage(data)
   chatterHub.client.receiveMessage = function (callback) {
     _chatterHub.client.receiveMessage = callback;
   };
@@ -44,9 +44,9 @@
   chatterHub.server.joinChatroom = function (chatroom) {
     _chatterHub.server.joinChatroom(chatroom);
   };
-  // function sendMessage(message, signature)
-  chatterHub.server.sendMessage = function (message, signature) {
-    _chatterHub.server.sendMessage(message, signature);
+  // function sendMessage(data)
+  chatterHub.server.sendMessage = function (data) {
+    _chatterHub.server.sendMessage(data);
   };
 
   // Error event callback

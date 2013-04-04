@@ -23,12 +23,15 @@ $(function () {
   var version = null;
   var isUpdating = false;
 
-  function formatDate(date) {
+  function formatTime(date) {
     var ampm = "AM";
     var hours = date.getHours();
     if (hours > 12) {
       hours = hours - 12;
       ampm = "PM";
+    }
+    if (hours === 0) {
+      hours = 12;
     }
     if (hours < 10) {
       hours = "0" + hours.toString();
@@ -41,7 +44,11 @@ $(function () {
     if (seconds < 10) {
       seconds = "0" + seconds.toString();
     }
-    return weekday[date.getDay()] + ", " + date.getDate() + " " + month[date.getMonth()] + " " + date.getFullYear() + " " + hours + ":" + minutes + ":" + seconds + " " + ampm;
+    return hours + ":" + minutes + ":" + seconds + " " + ampm;
+  }
+
+  function formatDate(date) {
+    return weekday[date.getDay()] + ", " + date.getDate() + " " + month[date.getMonth()] + " " + date.getFullYear() + " " + formatTime(date);
   }
 
   function updateTitle() {
@@ -69,9 +76,15 @@ $(function () {
     updateTitle();
   }
 
-  chatterHub.client.receiveMessage(function (message, signature) {
+  chatterHub.client.receiveMessage(function (data) {
     incrementUnreadMsgCount();
-    var $messageContent = $("<div class=\"message\"><div><div class=\"content\">" + message + "</div><p class=\"signature\">" + signature + "</p></div></div>");
+    var date = new Date(data.timestamp);
+    var $messageContent = $('<div class="message">'
+                          +   '<div>'
+                          +     '<div class="content">' + data.message + '</div>'
+                          +     '<p class="signature"><time title="' + formatDate(date) + '" datetime="' + date.toUTCString() + '">' + formatTime(date) + '</time> ' + data.signature + '</p>'
+                          +   '</div>'
+                          + '</div>');
     $messages.append($messageContent);
     $htmlbody.animate({ scrollTop: $messageContent.offset().top }, 500, function () {
       $message.focus();
@@ -103,7 +116,10 @@ $(function () {
     $form.submit(function () {
       var signature = $signature.val();
       if (/\S/.test($message.val())) {
-        chatterHub.server.sendMessage($message.val(), signature);
+        chatterHub.server.sendMessage({
+          message: $message.val(),
+          signature: signature
+        });
         $message.val("");
       } else {
         $message.focus();

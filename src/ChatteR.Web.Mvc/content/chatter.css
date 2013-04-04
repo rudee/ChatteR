@@ -26,9 +26,15 @@ input[name=signature] {
 }
 #messages .message .signature {
   margin: 0;
-  padding: 0 1em 0.5em;
+  padding: 0 1em 0.5em 0.5em;
   text-align: right;
   font-style: italic;
+  font-size: 0.85em;
+}
+#messages .message .signature time {
+  font-style: normal;
+  margin-right: 0.5em;
+  float: left;
 }
 #messages .message:nth-child(odd) div {
   background-color: #e8e8e8;

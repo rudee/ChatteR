@@ -70,18 +70,26 @@ namespace ChatteR.Web.Mvc
             return base.OnDisconnected();
         }
 
-        public void SendMessage(string message, string signature)
+        public void SendMessage(dynamic data)
         {
+            string message   = data.message;
+            string signature = data.signature;
+
             if (string.IsNullOrWhiteSpace(message))
             {
                 return;
             }
 
-            message = FormatMessage(message);
+            message   = FormatMessage(message);
             signature = FormatSignature(signature);
 
             s_chatter.GetChatrooms(Context.ConnectionId).ToList().ForEach(
-                chatroom => Clients.Group(chatroom).ReceiveMessage(message, signature));
+                chatroom => Clients.Group(chatroom).ReceiveMessage(new
+                                                                       {
+                                                                           message   = message,
+                                                                           signature = signature,
+                                                                           timestamp = DateTime.UtcNow.ToString("r")
+                                                                       }));
         }
 
         public void JoinChatroom(string chatroom)
