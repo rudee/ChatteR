@@ -9,6 +9,9 @@ input {
 input[name=signature] {
   width: 20em;
 }
+#chatter {
+  display: none;
+}
 #messages .message>div {
   display: inline-block;
   min-width: 10em;

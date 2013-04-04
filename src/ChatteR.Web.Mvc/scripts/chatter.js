@@ -5,6 +5,7 @@
  */
 $(function () {
   var $htmlbody = $("html,body");
+  var $noscript = $("#noscript");
   var $title = $("title");
   var $chatter = $("#chatter");
   var $messages = $("#messages");
@@ -15,9 +16,12 @@ $(function () {
   var $messageAndSignature = $("textarea[name=message], input[name=signature]");
   var $send = $("input[name=send]");
   var $stats = $("#stats");
+  var $version = $("#version");
   var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var unreadMsgCount = 0;
+  var version = null;
+  var isUpdating = false;
 
   function formatDate(date) {
     var ampm = "AM";
@@ -76,7 +80,19 @@ $(function () {
 
   chatterHub.client.updateStats(function (stats) {
     stats = $.parseJSON(stats);
+    if (version !== null && version !== stats.version) {
+      var msg = "You are currently using version " + version + "."
+              + " This page will now reload to acquire a new version (" + stats.version + ")";
+      if (isUpdating === false) {
+        isUpdating = true;
+        alert(msg);
+        location.reload(true);
+      }
+      return;
+    }
+    version = stats.version;
     $stats.html("<p>About " + stats.numOfClients + " user(s) in " + stats.numOfChatrooms + " chatroom(s) at " + formatDate(new Date(stats.date)) + "</p>");
+    $version.html("Version: " + version);
   });
 
   chatterHub.client.connected(function (data) {
@@ -123,4 +139,6 @@ $(function () {
   }).keydown(function (e) {
     resetUnreadMsgCount();
   });
+
+  $noscript.remove();
 });

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace ChatteR.Web.Mvc
             {
                 s_timer = new Timer(UpdateStats,
                                     null,
-                                    1000,
+                                    10000,
                                     int.Parse(WebConfigurationManager.AppSettings["ChatterHubUpdateStatsIntervalInMilliseconds"]));
             }
         }
@@ -38,11 +39,14 @@ namespace ChatteR.Web.Mvc
                 return;
             }
 
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+
             var data = new
                            {
                                numOfClients   = s_chatter.ConnectionIds.Count,
                                numOfChatrooms = s_chatter.Chatrooms.Count,
-                               date           = DateTime.UtcNow.ToString("r")
+                               date           = DateTime.UtcNow.ToString("r"),
+                               version        = version.Major + "." + version.Minor + "." + version.Build
                            };
 
             IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();

@@ -9,8 +9,8 @@
   @Styles.Render("~/content/chatter")
 </head>
 <body>
-  <noscript>Please enable JavaScript</noscript>
-  <div id="chatter" style="display:none">
+  <p id="noscript">Please enable JavaScript</p>
+  <div id="chatter">
     <div id="messages"></div>
     <form id="form" method="post">
       <input name="chatroom" type="hidden" value="@Model.Chatroom"/>
@@ -18,8 +18,11 @@
       <input name="signature" type="text" placeholder="Signature (Leave blank to be anonymous)" disabled/>
       <input name="send" type="submit" value="Send" disabled/>
     </form>
-    <div id="stats"></div>
   </div>
+  <footer>
+    <div id="stats"></div>
+    <div id="version"></div>
+  </footer>
   @Scripts.Render("~/scripts/jquery", "~/scripts/jquery.signalR")
   <script src="~/signalr/hubs"></script>
   @Scripts.Render("~/scripts/chatter")
