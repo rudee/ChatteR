@@ -18,6 +18,10 @@ namespace ChatteR.Web.Mvc
                                          WebConfigurationManager.AppSettings["JqueryCdnUrl"])
                    .Include("~/scripts/jquery-{version}.js"));
 
+            bundles.Add(new ScriptBundle("~/scripts/json2",
+                                         WebConfigurationManager.AppSettings["Json2CdnUrl"])
+                   .Include("~/scripts/json2.js"));
+
             bundles.Add(new ScriptBundle("~/scripts/jquery.signalR",
                                          WebConfigurationManager.AppSettings["JquerySignalRCdnUrl"])
                    .Include("~/scripts/jquery.signalR-{version}.js"));
