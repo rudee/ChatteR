@@ -111,17 +111,32 @@ namespace ChatteR.Web.Mvc
             {
                 // Replace all URLs with <A> elements
                 message = WebUtility.HtmlEncode(message);
-                var regex1 = new Regex(@"^https?://\S+", RegexOptions.Multiline);
-                MatchCollection matches1 = regex1.Matches(message);
-                foreach (Match match in matches1)
+                var imageRegex = new Regex(@"\S+\.(jpg|jpeg|gif|png|apng|svg|bmp|ico)(\?|$)", RegexOptions.Singleline);
+                var httpRegex = new Regex(@"^https?://\S+", RegexOptions.Multiline);
+                MatchCollection httpMatches = httpRegex.Matches(message);
+                foreach (Match match in httpMatches)
                 {
-                    message = message.Replace(match.Value, string.Format("<a href=\"{0}\" target=\"_blank\">{0}</a>", match.Value));
+                    if (imageRegex.IsMatch(match.Value))
+                    {
+                        message = message.Replace(match.Value, string.Format("<a href=\"{0}\" target=\"_blank\"><img src=\"{0}\"></a>", match.Value)); 
+                    }
+                    else
+                    {
+                        message = message.Replace(match.Value, string.Format("<a href=\"{0}\" target=\"_blank\">{0}</a>", match.Value)); 
+                    }
                 }
-                var regex2 = new Regex(@" https?://\S+", RegexOptions.Multiline);
-                MatchCollection matches2 = regex2.Matches(message);
-                foreach (Match match in matches2)
+                var httpsRegex = new Regex(@" https?://\S+", RegexOptions.Multiline);
+                MatchCollection httpsMatches = httpsRegex.Matches(message);
+                foreach (Match match in httpsMatches)
                 {
-                    message = message.Replace(match.Value, string.Format(" <a href=\"{0}\" target=\"_blank\">{0}</a>", match.Value));
+                    if (imageRegex.IsMatch(match.Value))
+                    {
+                        message = message.Replace(match.Value, string.Format(" <a href=\"{0}\" target=\"_blank\"><img src=\"{0}\"></a>", match.Value));
+                    }
+                    else
+                    {
+                        message = message.Replace(match.Value, string.Format(" <a href=\"{0}\" target=\"_blank\">{0}</a>", match.Value));
+                    }
                 }
 
                 // Wrap each line inside a <P> element
