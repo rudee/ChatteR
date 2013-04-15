@@ -10,8 +10,9 @@ using System.Web.Configuration;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
-namespace ChatteR.Web.Mvc
+namespace ChatteR.Web.Mvc.Models
 {
     [HubName("chatter")]
     public class ChatterHub : Hub
@@ -25,79 +26,125 @@ namespace ChatteR.Web.Mvc
         {
             if (s_timer == null)
             {
-                s_timer = new Timer(UpdateStats,
+                s_timer = new Timer(UpdateStatus,
                                     null,
-                                    10000,
+                                    1000,
                                     int.Parse(WebConfigurationManager.AppSettings["ChatterHubUpdateStatsIntervalInMilliseconds"]));
             }
         }
 
-        public void UpdateStats(object state)
-        {
-            if (!s_isStatsDirty)
-            {
-                return;
-            }
-
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
-
-            var data = new
-                           {
-                               numOfClients   = s_chatter.ConnectionIds.Count,
-                               numOfChatrooms = s_chatter.Chatrooms.Count,
-                               date           = DateTime.UtcNow.ToString("r"),
-                               version        = version.Major + "." + version.Minor + "." + version.Build
-                           };
-
-            IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();
-            string      json    = JsonConvert.SerializeObject(data);
-
-            context.Clients.All.UpdateStats(json);
-
-            s_isStatsDirty = false;
-        }
-
         public override Task OnDisconnected()
         {
-            IEnumerable<string> chatrooms = s_chatter.Remove(Context.ConnectionId);
-            foreach (string chatroom in chatrooms)
-            {
-                Groups.Remove(Context.ConnectionId, chatroom);
-            }
+            Disconnect();
 
             s_isStatsDirty = true;
 
             return base.OnDisconnected();
         }
 
+        public void UpdateStatus(object state)
+        {
+            if (!s_isStatsDirty)
+            {
+                return;
+            }
+
+            //IEnumerable<Chatroom> chatrooms = s_chatter.Chatrooms;
+            IList<Chatroom> chatrooms = s_chatter.Chatrooms.ToList();
+            if (!chatrooms.Any(c => c.Name == string.Empty))
+            {
+                chatrooms.Add(new Chatroom(string.Empty, Enumerable.Empty<User>()));
+            }
+            chatrooms = chatrooms.OrderBy(c => c.Name)
+                                 .Select(c => {
+                                     IEnumerable<User> users = c.Users.Select(u => {
+                                         string username = u.Username;
+                                         if (string.IsNullOrWhiteSpace(username))
+                                         {
+                                             username = "Anonymous";
+                                         }
+                                         return new User(u.Id, username);
+                                     });
+
+                                     return new Chatroom(c.Name, users.OrderBy(u => u.Username));
+                                 })
+                                 .ToList();
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            
+            var data = new
+                           {
+                               chatrooms = chatrooms,
+                               date      = DateTime.UtcNow.ToString("r"),
+                               version   = version.Major + "." + version.Minor + "." + version.Build
+                           };
+
+            IHubContext context = GlobalHost.ConnectionManager.GetHubContext<ChatterHub>();
+
+            context.Clients.All.UpdateStatus(JsonConvert.SerializeObject(data,
+                                                                         new JsonSerializerSettings
+                                                                             {
+                                                                                 ContractResolver = new CamelCasePropertyNamesContractResolver()
+                                                                             }));
+
+            s_isStatsDirty = false;
+        }
+
         public void SendMessage(dynamic data)
         {
-            string message   = data.message;
-            string signature = data.signature;
+            string message  = data.message;
+            string username = data.username;
 
             if (string.IsNullOrWhiteSpace(message))
             {
                 return;
             }
 
-            message   = FormatMessage(message);
-            signature = FormatSignature(signature);
+            username = string.IsNullOrWhiteSpace(username) ? null : username.Trim();
+            s_chatter.AddOrUpdate(Context.ConnectionId, username, null);
 
-            s_chatter.GetChatrooms(Context.ConnectionId).ToList().ForEach(
-                chatroom => Clients.Group(chatroom).ReceiveMessage(new
-                                                                       {
-                                                                           message   = message,
-                                                                           signature = signature,
-                                                                           timestamp = DateTime.UtcNow.ToString("r")
-                                                                       }));
+            Clients.Group(s_chatter.GetChatroom(Context.ConnectionId))
+                   .ReceiveMessage(new
+                                       {
+                                           message   = FormatMessage(message),
+                                           username  = FormatUsername(username),
+                                           timestamp = DateTime.UtcNow.ToString("r")
+                                       });
         }
 
-        public void JoinChatroom(string chatroom)
+        public void JoinChatroom(dynamic data)
         {
+            Disconnect();
+
+            string username = data.username;
+            string chatroom = data.chatroom;
+
+            username = string.IsNullOrWhiteSpace(username) ? null : username.Trim();
+
             chatroom = chatroom.Trim();
             Groups.Add(Context.ConnectionId, chatroom);
-            s_chatter.Add(Context.ConnectionId, chatroom);
+            s_chatter.AddOrUpdate(Context.ConnectionId,
+                                  username,
+                                  chatroom);
             s_isStatsDirty = true;
+        }
+
+        public void UpdateUsername(dynamic data)
+        {
+            string username = data.username;
+
+            username = string.IsNullOrWhiteSpace(username) ? null : username.Trim();
+
+            s_chatter.AddOrUpdate(Context.ConnectionId, username, null);
+            s_isStatsDirty = true;
+        }
+
+        private void Disconnect()
+        {
+            IEnumerable<string> chatrooms = s_chatter.Remove(Context.ConnectionId);
+            foreach (string chatroom in chatrooms)
+            {
+                Groups.Remove(Context.ConnectionId, chatroom);
+            }
         }
 
         private static string FormatMessage(string message)
@@ -152,18 +199,18 @@ namespace ChatteR.Web.Mvc
             }
         }
 
-        private static string FormatSignature(string signature)
+        private static string FormatUsername(string username)
         {
-            if (string.IsNullOrWhiteSpace(signature))
+            if (string.IsNullOrWhiteSpace(username))
             {
                 return "Anonymous";
             }
 
-            return WebUtility.HtmlEncode(signature.Trim());
+            return WebUtility.HtmlEncode(username.Trim());
         }
 
         private static readonly Chatter s_chatter;
         private static Timer s_timer;
-        private static bool s_isStatsDirty;
+        private static bool  s_isStatsDirty;
     }
 }

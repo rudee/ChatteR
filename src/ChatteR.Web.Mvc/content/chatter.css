@@ -6,7 +6,7 @@ textarea,
 input {
   display: block;
 }
-input[name=signature] {
+input[name=username] {
   width: 20em;
 }
 #chatter {
@@ -24,14 +24,14 @@ input[name=signature] {
   -ms-word-wrap: break-word;
   word-wrap: break-word;
 }
-#messages .message .signature {
+#messages .message .username {
   margin: 0;
   padding: 0 1em 0.5em 0.5em;
   text-align: right;
   font-style: italic;
   font-size: 0.85em;
 }
-#messages .message .signature time {
+#messages .message .username time {
   font-style: normal;
   margin-right: 0.5em;
   float: left;
@@ -41,4 +41,25 @@ input[name=signature] {
 }
 #messages .message:nth-child(even) div {
   background-color: #e0e0e0;
+}
+#users p,
+#chatrooms p {
+  margin-bottom: 0;
+}
+#users ul,
+#chatrooms ul {
+  margin-top: 0;
+  padding-left: 2em;
+}
+#users ul li,
+#chatrooms ul li {
+  display: inline;
+}
+#users ul li:first-of-type:before,
+#chatrooms ul li:first-of-type:before {
+  content: '';
+}
+#users ul li:before,
+#chatrooms ul li:before {
+  content: ', ';
 }

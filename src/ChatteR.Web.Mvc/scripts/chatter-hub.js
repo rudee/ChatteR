@@ -18,9 +18,9 @@
   chatterHub.client.receiveMessage = function (callback) {
     _chatterHub.client.receiveMessage = callback;
   };
-  // function updateStats(stats)
-  chatterHub.client.updateStats = function (callback) {
-    _chatterHub.client.updateStats = callback;
+  // function updateStatus(data)
+  chatterHub.client.updateStatus = function (callback) {
+    _chatterHub.client.updateStatus = callback;
   };
   // function connecting(data)
   chatterHub.client.connecting = function (callback) {
@@ -41,12 +41,16 @@
 
   // Server-side calls
   // function joinChatroom(chatroom)
-  chatterHub.server.joinChatroom = function (chatroom) {
-    _chatterHub.server.joinChatroom(chatroom);
+  chatterHub.server.joinChatroom = function (data) {
+    _chatterHub.server.joinChatroom(data);
   };
   // function sendMessage(data)
   chatterHub.server.sendMessage = function (data) {
     _chatterHub.server.sendMessage(data);
+  };
+  // function updateUsername(data)
+  chatterHub.server.updateUsername = function (data) {
+    _chatterHub.server.updateUsername(data);
   };
 
   // Error event callback
